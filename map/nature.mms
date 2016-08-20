@@ -1,0 +1,3 @@
+#simple{
+polygon-fill:@land;
+}

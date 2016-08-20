@@ -44,6 +44,12 @@ RUN /bin/bash -c 'cd $BPATH \
         && make install \
         && make install-mod_tile'
      
+# install Carto
+ENV HOME=/tmp
+RUN apt-get install -y npm \
+        && ln -s /usr/bin/nodejs /usr/bin/node \
+        && npm install -g carto
+
 # Configure mod_tile  
 ADD mod_tile.load /etc/apache2/mods-available/
 ADD mod_tile.conf /etc/apache2/mods-available/
@@ -53,13 +59,22 @@ RUN a2enmod mod_tile \
 # Configure renderd
 ADD renderd.conf /usr/local/etc/renderd.conf
 RUN install --owner=www-data --group=www-data -d /var/run/renderd
+        
+# Setup supervisord
+ENV SUPERVISOR_VERSION=3.2.0-2
+COPY supervisord.conf /etc/supervisord.conf
+RUN apt-get install -y supervisor=${SUPERVISOR_VERSION}
+
+COPY html/ /var/www/html
 
 # add osm data
 COPY map/ /map
 
 EXPOSE 80
 
-#/usr/sbin/apache2ctl -D FOREGROUND
+# /usr/sbin/apache2ctl -D FOREGROUND
+# /usr/bin/supervisord --nodaemon --configuration=/etc/supervisord.conf
+CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration=/etc/supervisord.conf"]
 
 # Clean up APT when done.
 #RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
