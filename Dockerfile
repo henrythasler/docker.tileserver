@@ -61,9 +61,9 @@ ADD renderd.conf /usr/local/etc/renderd.conf
 RUN install --owner=www-data --group=www-data -d /var/run/renderd
         
 # Setup supervisord
-ENV SUPERVISOR_VERSION=3.2.0-2
-COPY supervisord.conf /etc/supervisord.conf
-RUN apt-get install -y supervisor=${SUPERVISOR_VERSION}
+#ENV SUPERVISOR_VERSION=3.2.0-2
+#COPY supervisord.conf /etc/supervisord.conf
+#RUN apt-get install -y supervisor=${SUPERVISOR_VERSION}
 
 COPY html/ /var/www/html
 
@@ -72,9 +72,18 @@ COPY map/ /map
 
 EXPOSE 80
 
+RUN mkdir /etc/service/renderd
+COPY renderd.sh /etc/service/renderd/run
+RUN chmod +x /etc/service/renderd/run
+
+RUN mkdir /etc/service/apache2
+COPY apache2.sh /etc/service/apache2/run
+RUN chmod +x /etc/service/apache2/run
+
+
 # /usr/sbin/apache2ctl -D FOREGROUND
 # /usr/bin/supervisord --nodaemon --configuration=/etc/supervisord.conf
-CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration=/etc/supervisord.conf"]
+#CMD ["/usr/bin/supervisord", "--nodaemon", "--configuration=/etc/supervisord.conf"]
 
 # Clean up APT when done.
 #RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
