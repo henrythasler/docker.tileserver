@@ -91,6 +91,13 @@ COPY html/ $HTML
 
 # add osm data
 COPY map/ /map
+RUN cd /map/data/shp \
+        && wget http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip \
+        && unzip -j simplified-land-polygons-complete-3857.zip \
+        && rm simplified-land-polygons-complete-3857.zip \
+        && wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_admin_0_boundary_lines_land.zip \
+        && unzip ne_10m_admin_0_boundary_lines_land.zip \
+        && rm ne_10m_admin_0_boundary_lines_land.zip
 
 EXPOSE 80
 
@@ -103,7 +110,6 @@ RUN chmod +x /etc/service/renderd/run
 RUN mkdir /etc/service/apache2
 COPY apache2.sh /etc/service/apache2/run
 RUN chmod +x /etc/service/apache2/run
-
 
 # /usr/sbin/apache2ctl -D FOREGROUND
 # /usr/bin/supervisord --nodaemon --configuration=/etc/supervisord.conf

@@ -1,8 +1,5 @@
 #simple{
-polygon-fill:@land;
-  [zoom>=8] {
-    polygon-fill:@red;
-  }
+  polygon-fill:@land;
 }
 
 #admin_global[zoom>=1][zoom<=8],
