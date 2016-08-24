@@ -21,23 +21,54 @@
   "Layer": [
     {
       "geometry": "polygon",
-      "extent": [
-        -180,
-        -85.051,
-        180,
-        83.6664731
-      ],
       "id": "simple",
       "class": "land",
       "Datasource": {
         "type": "shape",
         "file": "data/shp/simplified_land_polygons.shp"
       },
+      "extent": [-180,-85.05112877980659,180,85.05112877980659],      
+      "layer": null,
+      "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+      "advanced": {},
+      "name": "simple"
+    },
+    {
+      "geometry": "linestring",
+      "id": "admin_global",
+      "class": "",
+      "Datasource": {
+        "type": "shape",
+        "file": "data/shp/ne_10m_admin_0_boundary_lines_land.shp"
+      },
+      "extent": [-180,-85.05112877980659,180,85.05112877980659],      
       "layer": null,
       "srs-name": "900913",
       "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
       "advanced": {},
-      "name": "simple"
+      "name": "admin_global"
+    },
+    {
+      "geometry": "point",
+      "Datasource": {
+        "type": "postgis",
+        "table": "(\nSELECT way, CASE WHEN \"name:de\" IS NOT NULL THEN \"name:de\" WHEN \"name:en\" IS NOT NULL THEN \"name:en\" ELSE name END as name, ele,  100000 AS area, place, \n  CASE WHEN population ~E'^\\\\d+$' THEN population::integer ELSE NULL END as pop\n  FROM planet_osm_point\n  WHERE \"place\" IN ('city', 'town', 'village', 'hamlet', 'suburb') AND name IS NOT NULL\nUNION\nSELECT way, name, ele,  way_area AS area, place, \n  CASE WHEN population ~E'^\\\\d+$' THEN population::integer ELSE NULL END as pop\nFROM planet_osm_polygon\n  WHERE \"place\" IN ('city', 'town', 'village', 'hamlet', 'suburb') AND name IS NOT NULL\n) as DATA",
+        "key_field": "",
+        "geometry_field": "",
+        "extent_cache": "dynamic",
+        "extent": "",
+        "host" : "postgres",
+        "password" : "0000",
+        "dbname": "postgres",
+        "user": "postgres"
+      },
+      "extent": [-180,-85.05112877980659,180,85.05112877980659],      
+      "id": "towns",
+      "class": "poi",
+      "srs-name": "900913",
+      "srs": "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0.0 +k=1.0 +units=m +nadgrids=@null +wktext +no_defs +over",
+      "advanced": {},
+      "name": "towns"
     }
   ]
 }

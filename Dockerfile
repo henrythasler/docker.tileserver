@@ -59,23 +59,47 @@ RUN a2enmod mod_tile \
 # Configure renderd
 ADD renderd.conf /usr/local/etc/renderd.conf
 RUN install --owner=www-data --group=www-data -d /var/run/renderd
-        
-# Setup supervisord
-#ENV SUPERVISOR_VERSION=3.2.0-2
-#COPY supervisord.conf /etc/supervisord.conf
-#RUN apt-get install -y supervisor=${SUPERVISOR_VERSION}
 
-COPY html/ /var/www/html
+# prepare for osm2pgsql
+RUN apt-get install -y \
+              cmake \
+              libboost-dev \
+              libbz2-dev \
+              libgeos++-dev \
+              lua5.2 \
+              liblua5.2-dev
+              
+# install osm2pgsql
+RUN cd $BPATH \
+        && git clone git://github.com/openstreetmap/osm2pgsql.git \
+        && cd osm2pgsql/ \
+        && mkdir build \
+        && cd build \
+        && cmake .. \
+        && make \
+        && make install
+        
+# get Leaflet
+ENV HTML /var/www/html
+RUN cd $HTML \
+        && apt-get install -y unzip \
+        && wget http://cdn.leafletjs.com/leaflet/v1.0.0-rc.3/leaflet.zip \
+        && unzip leaflet.zip -d leaflet \
+        && rm leaflet.zip
+
+COPY html/ $HTML
 
 # add osm data
 COPY map/ /map
 
 EXPOSE 80
 
+# install renderd service
 RUN mkdir /etc/service/renderd
 COPY renderd.sh /etc/service/renderd/run
 RUN chmod +x /etc/service/renderd/run
 
+# install apache2 service
 RUN mkdir /etc/service/apache2
 COPY apache2.sh /etc/service/apache2/run
 RUN chmod +x /etc/service/apache2/run
