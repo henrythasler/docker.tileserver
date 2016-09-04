@@ -86,18 +86,25 @@ RUN cd $HTML \
         && wget http://cdn.leafletjs.com/leaflet/v1.0.0-rc.3/leaflet.zip \
         && unzip leaflet.zip -d leaflet \
         && rm leaflet.zip
+        
+RUN cd $HTML \
+        && git clone --depth 1 https://github.com/mlevans/leaflet-hash.git
 
-COPY html/ $HTML
-
-# add osm data
-COPY map/ /map
-RUN cd /map/data/shp \
+RUN mkdir -p /map/data/shp \
+        && cd /map/data/shp \
         && wget http://data.openstreetmapdata.com/simplified-land-polygons-complete-3857.zip \
         && unzip -j simplified-land-polygons-complete-3857.zip \
         && rm simplified-land-polygons-complete-3857.zip \
         && wget http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/cultural/ne_10m_admin_0_boundary_lines_land.zip \
         && unzip ne_10m_admin_0_boundary_lines_land.zip \
         && rm ne_10m_admin_0_boundary_lines_land.zip
+
+COPY html/ $HTML
+        
+# add osm data
+COPY map/* /map/
+
+RUN apt-get install -y nano
 
 EXPOSE 80
 
@@ -110,6 +117,16 @@ RUN chmod +x /etc/service/renderd/run
 RUN mkdir /etc/service/apache2
 COPY apache2.sh /etc/service/apache2/run
 RUN chmod +x /etc/service/apache2/run
+
+# set up scripts to refresh tiles on style change 
+RUN mkdir /etc/service/refresh
+COPY refresh.sh /etc/service/refresh/run
+RUN chmod +x /etc/service/refresh/run
+
+RUN cd $BPATH \
+        && mkdir refresh
+COPY watch.sh $BPATH/refresh/watch.sh
+COPY reset.sh $BPATH/refresh/reset.sh
 
 # /usr/sbin/apache2ctl -D FOREGROUND
 # /usr/bin/supervisord --nodaemon --configuration=/etc/supervisord.conf

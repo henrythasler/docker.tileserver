@@ -13,6 +13,7 @@
         <div id="mapid"></div>
 
         <script src="leaflet/leaflet.js"></script>
+        <script src="leaflet-hash/leaflet-hash.js"></script>
         <script>
 
                 var mymap = L.map('mapid').setView([54, -2], 4);
@@ -22,6 +23,8 @@
                         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
                                 '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
                 }).addTo(mymap);
+                
+                var hash = new L.Hash(mymap);
         </script>
 </body>
 </html>

@@ -2,12 +2,13 @@
 tileserver based on mapnik 3
 
 # how to build
-sudo docker build -t="img-tileserver:0.1" .
+docker build -t="img-tileserver:0.1" .
 
 # how to run
-* sudo docker run -ti --rm -p 8080:80 img-tileserver:0.1
-* sudo docker run -ti --rm img-tileserver:0.1 /sbin/my_init -- bash -l
-* sudo docker run --name tileserver -d -v /home/henry/docker/docker.tileserver/map:/map -p 8080:80 img-tileserver:0.1
+* docker run -ti --rm -p 8080:80 img-tileserver:0.1
+* docker run -ti --rm img-tileserver:0.1 /sbin/my_init -- bash -l
+* docker run --name tileserver -d -v /home/henry/docker/docker.tileserver/map:/map -p 8080:80 img-tileserver:0.1
+* docker run -ti --rm -p 8080:80 -v /media/mapdata/henry/TileGenerator:/map -v /var/run/postgresql/.s.PGSQL.5432:/var/run/postgresql/.s.PGSQL.5432 -v /media/mapdata/henry/TileGenerator/fonts:/usr/share/fonts/truetype/noto img-tileserver:0.3
 
 # work inside container
 * restart runit service:
