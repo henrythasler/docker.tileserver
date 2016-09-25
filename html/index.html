@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-        <title>docker.tileserver</title>
+        <title>docker.tileserver 2</title>
         <meta charset="utf-8" />
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,15 +16,48 @@
         <script src="leaflet-hash/leaflet-hash.js"></script>
         <script>
 
-                var mymap = L.map('mapid').setView([54, -2], 4);
-
-                L.tileLayer('tiles/{z}/{x}/{y}.png', {
+                var cyclemap = L.tileLayer('tiles/{z}/{x}/{y}.png', {
                         maxZoom: 18,
                         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
                                 '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
-                }).addTo(mymap);
+                });
                 
-                var hash = new L.Hash(mymap);
+                var bw_mapnik = L.tileLayer('https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
+                });
+
+                var mapnik = L.tileLayer('http://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
+                });
+                        
+
+                var Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                        });
+                
+                
+                var baseMaps = {
+                  "MyCycleMap": cyclemap,
+                  "mapnik": mapnik,
+                  "bw_mapnik": bw_mapnik,
+                  "Positron": Positron,
+                };
+                
+                var map = L.map('mapid', {
+                    center: [54, -2],
+                    zoom: 4,
+                    layers: [cyclemap]
+                    }
+                  );
+                  
+                L.control.layers(baseMaps).addTo(map);
+                
+                var hash = new L.Hash(map);
         </script>
 </body>
 </html>
