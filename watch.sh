@@ -33,8 +33,6 @@ compare() {
     echo -n "change detected,"
     build
     previous_sha=$sha
-  else
-    echo -n .
   fi
 }
 #trap build SIGINT

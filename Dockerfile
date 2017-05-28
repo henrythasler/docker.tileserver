@@ -89,6 +89,18 @@ RUN cd $HTML \
         
 RUN cd $HTML \
         && git clone --depth 1 https://github.com/mlevans/leaflet-hash.git
+        
+RUN cd $HTML \
+        && git clone --depth 1 https://github.com/CliffCloud/Leaflet.EasyButton.git
+        
+RUN cd $HTML \
+        && git clone --depth 1 https://github.com/Leaflet/Leaflet.draw.git
+
+RUN cd $HTML \
+        && git clone --depth 1 https://github.com/tyrasd/togpx.git
+        
+RUN cd $HTML \
+        && git clone --depth 1 https://github.com/mapbox/togeojson.git
 
 RUN mkdir -p /map/data/shp \
         && cd /map/data/shp \

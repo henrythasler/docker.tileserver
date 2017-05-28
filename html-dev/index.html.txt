@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <title>docker.tileserver 2</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="leaflet/leaflet.css" />
+        <link rel="stylesheet" href="map.css" />
+        <link rel="stylesheet" href="leaflet-measure-path.css" />
+</head>
+<body>
+        <div id="mapid"></div>
+
+        <script src="leaflet/leaflet.js"></script>
+        <script src="leaflet-hash/leaflet-hash.js"></script>
+        <script src="Path.Drag.js"></script>
+        <script src="Leaflet.Editable.js"></script>
+        <script src="leaflet-measure-path.js"></script>
+        <script>
+
+                var cyclemap = L.tileLayer('tiles/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
+                });
+                
+                var bw_mapnik = L.tileLayer('https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
+                });
+
+                var mapnik = L.tileLayer('http://a.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                                '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, '
+                });
+                        
+
+                var Positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+                        maxZoom: 18,
+                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                        });
+                
+                
+                var baseMaps = {
+                  "MyCycleMap": cyclemap,
+                  "mapnik": mapnik,
+                  "bw_mapnik": bw_mapnik,
+                  "Positron": Positron,
+                };
+                
+                var map = L.map('mapid', {
+                    center: [54, -2],
+                    zoom: 4,
+                    layers: [cyclemap],
+                    editable: true,
+                    }
+                  );
+                  
+                L.control.layers(baseMaps).addTo(map);
+                
+                var hash = new L.Hash(map);
+    L.EditControl = L.Control.extend({
+
+        options: {
+            position: 'topleft',
+            callback: null,
+            kind: '',
+            html: ''
+        },
+
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+                link = L.DomUtil.create('a', '', container);
+
+            link.href = '#';
+            link.title = 'Create a new ' + this.options.kind;
+            link.innerHTML = this.options.html;
+            L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                      .on(link, 'click', function () {
+                        window.LAYER = this.options.callback.call(map.editTools);
+                      }, this);
+
+            return container;
+        }
+
+    });
+
+    L.NewLineControl = L.Control.extend({
+
+        options: {
+            position: 'topleft'
+        },
+
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+                link = L.DomUtil.create('a', '', container);
+
+            link.href = '#';
+            link.title = 'Create a new line';
+            link.innerHTML = '/\\/';
+            L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                      .on(link, 'click', function () {
+                        map.editTools.startPolyline();
+                      });
+
+            return container;
+        }
+    });
+
+    L.NewPolygonControl = L.EditControl.extend({
+
+        options: {
+            position: 'topleft',
+        },
+
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+                link = L.DomUtil.create('a', '', container);
+
+            link.href = '#';
+            link.title = 'Create a new polygon';
+            link.innerHTML = '▰';
+            L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                      .on(link, 'click', function () {
+                        map.editTools.startPolygon();
+                      });
+
+            return container;
+        }
+    });
+
+    L.NewCircleControl = L.EditControl.extend({
+
+        options: {
+            position: 'topleft',
+        },
+        onAdd: function (map) {
+            var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+                link = L.DomUtil.create('a', '', container);
+
+            link.href = '#';
+            link.title = 'Create a new circle';
+            link.innerHTML = '⬤';
+            L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                      .on(link, 'click', function () {
+                        map.editTools.startCircle();
+                      });
+
+            return container;
+        }
+    });
+
+    map.addControl(new L.NewLineControl());
+    map.addControl(new L.NewPolygonControl());
+    map.addControl(new L.NewCircleControl());
+
+    var deleteShape = function (e) {
+      if ((e.originalEvent.ctrlKey || e.originalEvent.metaKey) && this.editEnabled()) this.editor.deleteShapeAt(e.latlng);
+    };
+    map.on('layeradd', function (e) {
+
+        if (e.layer instanceof L.Path) e.layer.on('click', L.DomEvent.stop).on('click', deleteShape, e.layer);
+        if (e.layer instanceof L.Path) e.layer.on('dblclick', L.DomEvent.stop).on('dblclick', e.layer.toggleEdit);
+        if (e.layer instanceof L.Path) e.layer.showMeasurements()
+    });
+
+    map.on('editable:vertex:drag editable:vertex:deleted', function (e) {
+        e.layer.updateMeasurements()
+        })
+
+        </script>
+</body>
+</html>

@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/src/refresh/watch.sh /map/mycyclemap/
+exec /usr/src/refresh/watch.sh $CARTO
